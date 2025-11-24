@@ -1,0 +1,26 @@
+name: Deploy to Dev EC2
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+      # This checks out the repo inside the runner, required even if we only SSH
+        uses: actions/checkout@v3
+
+      - name: Deploy to Dev EC2 over SSH
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.DEV_HOST }}
+          username: ${{ secrets.DEV_USER }}
+          key: ${{ secrets.DEV_SSH_KEY }}
+          script: |
+            cd /var/www/html
+            git pull origin dev
+            sudo systemctl restart httpd
